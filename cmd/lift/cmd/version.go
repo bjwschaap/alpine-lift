@@ -18,7 +18,7 @@ var (
 		Use:   "version [no options!]",
 		Short: "Show version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("Auklet version: %s-%s (built by %s on %s)\n", version, gitTag, buildUser, buildDate)
+			fmt.Printf("Alpine Lift version: %s-%s (built by %s on %s)\n", version, gitTag, buildUser, buildDate)
 		},
 	}
 )
