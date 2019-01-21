@@ -60,7 +60,7 @@ func (l *Lift) Start() error {
 	log.Info("Creating groups")
 	for _, grp := range l.Data.Groups {
 		cmd := exec.Command("addgroup", grp)
-		log.Debugf("addgroup %s", grp)
+		log.Infof("Creating group %s", grp)
 		if err = cmd.Run(); err != nil {
 			log.Debugf("Error creating group %s: %v", grp, err)
 		}
@@ -68,6 +68,7 @@ func (l *Lift) Start() error {
 
 	log.Info("Creating Users")
 	for _, user := range l.Data.Users {
+		log.Infof("Creating user %s", user.Name)
 		if err = createOSUser(user); err != nil {
 			log.Debugf("Error creating user %s: %v", user.Name, err)
 		}
@@ -108,6 +109,9 @@ func (l *Lift) Start() error {
 			log.Debugf("err: %s", err)
 		}
 	}
+
+	// Final SSH restart because of added keys etc.
+	_ = doService("sshd", RESTART)
 
 	log.Info("Lift successfully completed")
 	return nil

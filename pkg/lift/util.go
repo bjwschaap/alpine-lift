@@ -157,5 +157,10 @@ func createOSUser(u User) error {
 			log.Debugf("Error writing keys in %s: %v", authKeysFile, err)
 		}
 	}
+
+	// finally unlock
+	cmd = exec.Command("passwd", "-u", u.Name)
+	_ = cmd.Run()
+
 	return nil
 }
