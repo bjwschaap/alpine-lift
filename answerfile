@@ -1,0 +1,20 @@
+KEYMAPOPTS="us us"
+HOSTNAMEOPTS="-n alpine-test"
+INTERFACESOPTS="auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+    hostname alpine-test
+"
+DNSOPTS="-d example.com 8.8.8.8"
+TIMEZONEOPTS="-z UTC"
+PROXYOPTS="none"
+APKREPOSOPTS="-1"
+SSHDOPTS="-c openssh"
+NTPOPTS="-c busybox"
+DISKOPTS="none"
+LBUOPTS="none"
+APKCACHEOPTS="/var/cache/apk"
+
+
