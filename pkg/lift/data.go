@@ -6,6 +6,7 @@ import (
 
 type AlpineData struct {
 	RootPasswd string          `yaml:"password"`
+	MOTD       string          `yaml:"motd"`
 	Network    NetworkSettings `yaml:"network"`
 	Packages   PackagesConfig  `yaml:"packages"`
 	DRP        DRProvision     `yaml:"dr_provision"`
@@ -16,6 +17,7 @@ type AlpineData struct {
 	WriteFiles []WriteFile     `yaml:"write_files"`
 	TimeZone   string          `yaml:"timezone"`
 	Keymap     string          `yaml:"keymap"`
+	UnLift     bool            `yaml:"unlift"`
 }
 
 type User struct {
@@ -103,6 +105,7 @@ func (ms *MultiString) UnmarshalYAML(unmarshal func(interface{}) error) error {
 func InitAlpineData() *AlpineData {
 	return &AlpineData{
 		RootPasswd: "alpine",
+		UnLift:     true,
 		TimeZone:   "UTC",
 		Keymap:     "us us",
 		Network: NetworkSettings{

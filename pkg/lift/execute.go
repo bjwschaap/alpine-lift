@@ -30,6 +30,8 @@ func (l *Lift) alpineSetup() error {
 	// Ignore any errors, since exit code can be 1 if
 	// e.g. service is already running.
 	_ = cmd.Run()
+	// Remove answerfile
+	_ = os.Remove(f)
 	return nil
 }
 
@@ -90,7 +92,7 @@ func (l *Lift) drpSetup() error {
 			return err
 		}
 		log.Debugf("Copying service file to %s", drpcliRCFile)
-		cmd := exec.Command("cp", rcfile, drpcliRCFile)
+		cmd := exec.Command("mv", rcfile, drpcliRCFile)
 		err = cmd.Run()
 		if err != nil {
 			return err
@@ -111,5 +113,69 @@ func (l *Lift) drpSetup() error {
 
 	log.Info("Starting dr-provision runner")
 	_ = doService("drpcli", START)
+	return nil
+}
+
+func (l *Lift) setupAPK() error {
+	rfile, err := generateFileFromTemplate(*repoFile, l.Data.Packages.Repositories)
+	if err != nil {
+		return err
+	}
+	log.Debug("Setting up repositories")
+	cmd := exec.Command("mv", rfile, "/etc/apk/repositories")
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+	if l.Data.Packages.Update {
+		log.Debug("Executing apk update")
+		cmd := exec.Command("apk", "update")
+		err = cmd.Run()
+		if err != nil {
+			return err
+		}
+	}
+	if l.Data.Packages.Upgrade {
+		log.Debug("Executing apk upgrade")
+		cmd := exec.Command("apk", "upgrade")
+		err = cmd.Run()
+		if err != nil {
+			return err
+		}
+	}
+	for _, p := range l.Data.Packages.Uninstall {
+		log.WithField("package", p).Debug("Executing apk del")
+		cmd := exec.Command("apk", "del", p)
+		err = cmd.Run()
+		if err != nil {
+			return err
+		}
+	}
+	for _, p := range l.Data.Packages.Install {
+		log.WithField("package", p).Debug("Executing apk add")
+		cmd := exec.Command("apk", "add", p)
+		err = cmd.Run()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (l *Lift) setMOTD() error {
+	if l.Data.MOTD != "" {
+		err := os.Truncate("/etc/motd", 0)
+		if err != nil {
+			return err
+		}
+		file, err := os.OpenFile("/etc/motd", os.O_RDWR|os.O_EXCL, 0600)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		if _, err = file.WriteString(fmt.Sprintf("%s\n", l.Data.MOTD)); err != nil {
+			return err
+		}
+	}
 	return nil
 }

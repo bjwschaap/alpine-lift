@@ -71,11 +71,14 @@ const (
 		eend 0
 	}	
 	`
+
+	repositoriesTemplate = "{{ range . }}{{ . }}\n{{ end }}"
 )
 
 var (
 	answerFile = template.Must(template.New("answerfile").Parse(answerFileTemplate))
 	drpcliInit = template.Must(template.New("drpcli").Parse(drpcliServiceTemplate))
+	repoFile   = template.Must(template.New("repositories").Parse(repositoriesTemplate))
 )
 
 // This function takes a template and data struct, executes (parses) the template
@@ -87,7 +90,7 @@ func generateFileFromTemplate(t template.Template, data interface{}) (string, er
 	if err != nil {
 		return "", err
 	}
-
+	defer tmpfile.Close()
 	if err := t.Execute(tmpfile, data); err != nil {
 		return "", err
 	}

@@ -52,6 +52,11 @@ func (l *Lift) Start() error {
 		return err
 	}
 
+	log.Info("Setup APK and Packages")
+	if err = l.setupAPK(); err != nil {
+		return err
+	}
+
 	log.Info("Setting SSHD configuration")
 	if err = l.sshdSetup(); err != nil {
 		return err
@@ -98,6 +103,11 @@ func (l *Lift) Start() error {
 		}
 	}
 
+	log.Info("Setting MOTD")
+	if err = l.setMOTD(); err != nil {
+		return err
+	}
+
 	log.Info("Executing post-install commands")
 	for _, c := range l.Data.RunCMD {
 		c = append([]string{"-c"}, c...)
@@ -112,6 +122,19 @@ func (l *Lift) Start() error {
 
 	// Final SSH restart because of added keys etc.
 	_ = doService("sshd", RESTART)
+
+	// Delete the lift binary from the system
+	if l.Data.UnLift {
+		log.Info("Removing lift binary from the system")
+		binPath, err := os.Readlink("/proc/self/exe")
+		if err != nil {
+			return err
+		}
+		log.WithField("path", binPath).Debug("os.Remove")
+		if err = os.Remove(binPath); err != nil {
+			return err
+		}
+	}
 
 	log.Info("Lift successfully completed")
 	return nil
