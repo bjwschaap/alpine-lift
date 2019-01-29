@@ -19,7 +19,7 @@ GOFILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 all: clean build
 
 build:
-	${DOCKERRUN} ash -c "apk add --no-cache git upx libc-dev gcc && GO111MODULE=on go mod download && ${GOBUILD} -o bin/${BINNAME} github.com/bjwschaap/lift/cmd/lift"
+	${DOCKERRUN} ash -c "apk add --no-cache git upx libc-dev gcc && GO111MODULE=on go mod download && ${GOBUILD} -o bin/${BINNAME} github.com/bjwschaap/lift/cmd/lift && ${UPX}"
 
 localbuild:
 	${GOBUILD} -v -race -o bin/${BINNAME} github.com/bjwschaap/lift/cmd/lift

@@ -17,16 +17,23 @@ const (
 
 // executes the setup-alpine script, using a generated answerfile
 func (l *Lift) alpineSetup() error {
+	var cmd *exec.Cmd
 	f, err := generateFileFromTemplate(*answerFile, l.Data)
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command("setup-alpine", "-f", f)
-	// setup-alpine script asks for root password on stdin
-	input := []byte(fmt.Sprintf("%s\n%s\n", l.Data.RootPasswd, l.Data.RootPasswd))
-	cmd.Stdin = bytes.NewBuffer(input)
-	// Show setup-alpine output on stdout
-	cmd.Stdout = os.Stdout
+	if l.Data.RootPasswd == "" {
+		cmd = exec.Command("setup-alpine", "-e", "-f", f)
+	} else {
+		cmd = exec.Command("setup-alpine", "-f", f)
+		// setup-alpine script asks for root password on stdin
+		input := []byte(fmt.Sprintf("%s\n%s\n", l.Data.RootPasswd, l.Data.RootPasswd))
+		cmd.Stdin = bytes.NewBuffer(input)
+	}
+	// If not silenced, show setup-alpine output on stdout
+	if !silent {
+		cmd.Stdout = os.Stdout
+	}
 	// Ignore any errors, since exit code can be 1 if
 	// e.g. service is already running.
 	_ = cmd.Run()

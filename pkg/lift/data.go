@@ -101,13 +101,14 @@ func (ms *MultiString) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
+var silent bool
+
 // Initialize alpine-data with sane defaults
 func InitAlpineData() *AlpineData {
 	return &AlpineData{
-		RootPasswd: "alpine",
-		UnLift:     true,
-		TimeZone:   "UTC",
-		Keymap:     "us us",
+		UnLift:   true,
+		TimeZone: "UTC",
+		Keymap:   "us us",
 		Network: NetworkSettings{
 			HostName: "alpine",
 			InterfaceOpts: `auto lo

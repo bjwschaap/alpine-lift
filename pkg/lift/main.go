@@ -29,12 +29,21 @@ func New(dataURL string) (*Lift, error) {
 
 // This is the main program loop
 func (l *Lift) Start() error {
+	// If alpine-lift-silent kernel boot param is set, silence all logging/output
+	if s, err := getKernelBootParam("alpine-lift-silent"); err == nil && s != "" {
+		log.SetOutput(ioutil.Discard)
+		silent = true
+	}
+
 	log.Info("Lift starting...")
 	// If url not provided, read it from the kernel boot parameters
 	if l.DataURL == "" {
 		var err error
-		if l.DataURL, err = getDataURL(); err != nil {
+		if l.DataURL, err = getKernelBootParam("alpine-data"); err != nil {
 			return err
+		}
+		if l.DataURL == "" {
+			return errors.New("alpine-data URL not set!")
 		}
 	}
 	log.WithField("url", l.DataURL).Info("downloading alpine-data file")
@@ -141,15 +150,15 @@ func (l *Lift) Start() error {
 }
 
 // tries to get the alpine-data parameter from the kernel parameters in /proc/cmdline
-func getDataURL() (string, error) {
+func getKernelBootParam(key string) (string, error) {
 	cmdline, err := ioutil.ReadFile("/proc/cmdline")
 	if err != nil {
 		return "", err
 	}
 	for _, a := range strings.Fields(string(cmdline)) {
-		if strings.HasPrefix(a, "alpine-data=") {
+		if strings.HasPrefix(a, fmt.Sprintf("%s=", key)) {
 			return strings.Split(a, "=")[1], nil
 		}
 	}
-	return "", errors.New("Could not find alpine-data kernel boot parameter")
+	return "", nil
 }
