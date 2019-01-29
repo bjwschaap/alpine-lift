@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -96,20 +94,8 @@ func (l *Lift) Start() error {
 	}
 
 	log.Info("Writing files")
-	for _, wf := range l.Data.WriteFiles {
-		perm, err := strconv.ParseUint(wf.Permissions, 8, 32)
-		if err != nil {
-			return fmt.Errorf("Error reading permissions: %s", err)
-		}
-		log.Infof("Creating %s", wf.Path)
-		err = os.MkdirAll(filepath.Dir(wf.Path), 0711)
-		if err != nil {
-			return fmt.Errorf("Error creating %s: %s", filepath.Dir(wf.Path), err)
-		}
-		err = ioutil.WriteFile(wf.Path, []byte(wf.Content), os.FileMode(perm))
-		if err != nil {
-			log.Debugf("error writing file: %s", err)
-		}
+	if err = l.createFiles(); err != nil {
+		return err
 	}
 
 	log.Info("Setting MOTD")

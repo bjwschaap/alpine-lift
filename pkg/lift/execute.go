@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -181,6 +183,40 @@ func (l *Lift) setMOTD() error {
 		}
 		defer file.Close()
 		if _, err = file.WriteString(fmt.Sprintf("%s\n", l.Data.MOTD)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (l *Lift) createFiles() error {
+	for _, wf := range l.Data.WriteFiles {
+		var data []byte
+
+		perm, err := strconv.ParseUint(wf.Permissions, 8, 32)
+		if err != nil {
+			return fmt.Errorf("Error reading permissions: %s", err)
+		}
+		log.Infof("Creating %s", wf.Path)
+		err = os.MkdirAll(filepath.Dir(wf.Path), 0711)
+		if err != nil {
+			return fmt.Errorf("Error creating %s: %s", filepath.Dir(wf.Path), err)
+		}
+		if wf.Content != "" {
+			data = []byte(wf.Content)
+
+		} else if wf.ContentURL != "" {
+			if data, err = downloadFile(wf.ContentURL); err != nil {
+				return err
+			}
+		}
+		err = ioutil.WriteFile(wf.Path, data, os.FileMode(perm))
+		if err != nil {
+			log.Debugf("error writing file: %s", err)
+		}
+		cmd := exec.Command("chown", wf.Owner)
+		err = cmd.Run()
+		if err != nil {
 			return err
 		}
 	}

@@ -74,6 +74,7 @@ type PackagesConfig struct {
 type WriteFile struct {
 	Encoding    string `yaml:"encoding"`
 	Content     string `yaml:"content"`
+	ContentURL  string `yaml:"content-url"`
 	Path        string `yaml:"path"`
 	Owner       string `yaml:"owner"`
 	Permissions string `yaml:"permissions"`
