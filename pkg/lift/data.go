@@ -5,19 +5,20 @@ import (
 )
 
 type AlpineData struct {
-	RootPasswd string          `yaml:"password"`
-	MOTD       string          `yaml:"motd"`
-	Network    NetworkSettings `yaml:"network"`
-	Packages   PackagesConfig  `yaml:"packages"`
-	DRP        DRProvision     `yaml:"dr_provision"`
-	SSHDConfig SSHD            `yaml:"sshd"`
-	Groups     MultiString     `yaml:"groups"`
-	Users      []User          `yaml:"users"`
-	RunCMD     []MultiString   `yaml:"runcmd"`
-	WriteFiles []WriteFile     `yaml:"write_files"`
-	TimeZone   string          `yaml:"timezone"`
-	Keymap     string          `yaml:"keymap"`
-	UnLift     bool            `yaml:"unlift"`
+	RootPasswd  string          `yaml:"password"`
+	MOTD        string          `yaml:"motd"`
+	Network     NetworkSettings `yaml:"network"`
+	Packages    PackagesConfig  `yaml:"packages"`
+	DRP         DRProvision     `yaml:"dr_provision"`
+	SSHDConfig  SSHD            `yaml:"sshd"`
+	Groups      MultiString     `yaml:"groups"`
+	Users       []User          `yaml:"users"`
+	RunCMD      []MultiString   `yaml:"runcmd"`
+	WriteFiles  []WriteFile     `yaml:"write_files"`
+	TimeZone    string          `yaml:"timezone"`
+	Keymap      string          `yaml:"keymap"`
+	UnLift      bool            `yaml:"unlift"`
+	ScratchDisk string          `yaml:"scratch_disk"`
 }
 
 type User struct {

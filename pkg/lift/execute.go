@@ -36,6 +36,9 @@ func (l *Lift) alpineSetup() error {
 	if !silent {
 		cmd.Stdout = os.Stdout
 	}
+	env := append(os.Environ(), "VARFS=btrfs")
+	env = append(env, "SWAP_SIZE=4096")
+	cmd.Env = env
 	// Ignore any errors, since exit code can be 1 if
 	// e.g. service is already running.
 	_ = cmd.Run()
@@ -214,10 +217,12 @@ func (l *Lift) createFiles() error {
 		if err != nil {
 			log.Debugf("error writing file: %s", err)
 		}
-		cmd := exec.Command("chown", wf.Owner)
-		err = cmd.Run()
-		if err != nil {
-			return err
+		if wf.Owner != "" {
+			cmd := exec.Command("chown", wf.Owner, wf.Path)
+			err = cmd.Run()
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

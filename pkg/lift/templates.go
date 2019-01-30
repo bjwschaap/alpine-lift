@@ -17,7 +17,7 @@ const (
 	APKREPOSOPTS="-1"
 	SSHDOPTS="-c openssh"
 	NTPOPTS="-c busybox"
-	DISKOPTS="none"
+	DISKOPTS={{- if .ScratchDisk -}}"-m data {{- .ScratchDisk -}}"{{- else -}}"none"{{- end }}
 	LBUOPTS="none"
 	APKCACHEOPTS="/var/cache/apk"
 	`
