@@ -20,6 +20,7 @@ const (
 // executes the setup-alpine script, using a generated answerfile
 func (l *Lift) alpineSetup() error {
 	var cmd *exec.Cmd
+	var input string
 	f, err := generateFileFromTemplate(*answerFile, l.Data)
 	if err != nil {
 		return err
@@ -29,21 +30,27 @@ func (l *Lift) alpineSetup() error {
 	} else {
 		cmd = exec.Command("setup-alpine", "-f", f)
 		// setup-alpine script asks for root password on stdin
-		input := []byte(fmt.Sprintf("%s\n%s\n", l.Data.RootPasswd, l.Data.RootPasswd))
-		cmd.Stdin = bytes.NewBuffer(input)
+		input = fmt.Sprintf("%s\n%s\n", l.Data.RootPasswd, l.Data.RootPasswd)
+
 	}
 	// If not silenced, show setup-alpine output on stdout
 	if !silent {
 		cmd.Stdout = os.Stdout
 	}
-	env := append(os.Environ(), "VARFS=btrfs")
+	env := append(os.Environ(), "VARFS=xfs")
 	env = append(env, "SWAP_SIZE=4096")
 	cmd.Env = env
+
+	if l.Data.ScratchDisk != "" {
+		// answer 'y' to confirm disk overwrite
+		input += "y\n"
+	}
+	cmd.Stdin = bytes.NewBuffer([]byte(input))
 	// Ignore any errors, since exit code can be 1 if
 	// e.g. service is already running.
 	_ = cmd.Run()
 	// Remove answerfile
-	_ = os.Remove(f)
+	//_ = os.Remove(f)
 	return nil
 }
 
