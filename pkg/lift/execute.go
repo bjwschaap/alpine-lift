@@ -20,7 +20,7 @@ const (
 // executes the setup-alpine script, using a generated answerfile
 func (l *Lift) alpineSetup() error {
 	var cmd *exec.Cmd
-	var input string
+	var input bytes.Buffer
 	f, err := generateFileFromTemplate(*answerFile, l.Data)
 	if err != nil {
 		return err
@@ -30,22 +30,25 @@ func (l *Lift) alpineSetup() error {
 	} else {
 		cmd = exec.Command("setup-alpine", "-f", f)
 		// setup-alpine script asks for root password on stdin
-		input = fmt.Sprintf("%s\n%s\n", l.Data.RootPasswd, l.Data.RootPasswd)
+		_, err = input.WriteString(fmt.Sprintf("%s\n%s\n", l.Data.RootPasswd, l.Data.RootPasswd))
+		if err != nil {
+			return err
+		}
 
 	}
 	// If not silenced, show setup-alpine output on stdout
 	if !silent {
 		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 	}
-	env := append(os.Environ(), "VARFS=xfs")
-	env = append(env, "SWAP_SIZE=4096")
-	cmd.Env = env
 
+	env := append(os.Environ(), "VARFS=xfs")
 	if l.Data.ScratchDisk != "" {
-		// answer 'y' to confirm disk overwrite
-		input += "y\n"
+		env = append(env, fmt.Sprintf("ERASE_DISKS=%s", l.Data.ScratchDisk))
+		env = append(env, "MKFS_OPTS_VAR=-f")
 	}
-	cmd.Stdin = bytes.NewBuffer([]byte(input))
+	cmd.Env = env
+	cmd.Stdin = &input
 	// Ignore any errors, since exit code can be 1 if
 	// e.g. service is already running.
 	_ = cmd.Run()
