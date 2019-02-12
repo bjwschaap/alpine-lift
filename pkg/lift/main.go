@@ -12,6 +12,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// Lift contains all configuration
 type Lift struct {
 	DataURL string
 	Data    *AlpineData
@@ -25,7 +26,7 @@ func New(dataURL string) (*Lift, error) {
 	}, nil
 }
 
-// This is the main program loop
+// Start contains the main program loop
 func (l *Lift) Start() error {
 	// If alpine-lift-silent kernel boot param is set, silence all logging/output
 	if s, err := getKernelBootParam("alpine-lift-silent"); err == nil && s != "" {
@@ -41,7 +42,7 @@ func (l *Lift) Start() error {
 			return err
 		}
 		if l.DataURL == "" {
-			return errors.New("alpine-data URL not set!")
+			return errors.New("alpine-data URL not set")
 		}
 	}
 	log.WithField("url", l.DataURL).Info("downloading alpine-data file")
@@ -56,6 +57,11 @@ func (l *Lift) Start() error {
 
 	log.Info("Executing alpine-setup")
 	if err = l.alpineSetup(); err != nil {
+		return err
+	}
+
+	log.Info("Setting Hostname")
+	if err = l.setHostname(); err != nil {
 		return err
 	}
 

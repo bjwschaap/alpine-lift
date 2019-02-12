@@ -17,6 +17,17 @@ const (
 	drpcliRCFile = "/etc/init.d/drpcli"
 )
 
+// executes the `hostname` command, if hostname was provided in alpine-data
+func (l *Lift) setHostname() error {
+	if l.Data.Network.HostName != "" {
+		cmd := exec.Command("hostname", l.Data.Network.HostName)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // executes the setup-alpine script, using a generated answerfile
 func (l *Lift) alpineSetup() error {
 	var cmd *exec.Cmd
