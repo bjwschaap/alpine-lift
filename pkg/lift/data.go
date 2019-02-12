@@ -115,7 +115,7 @@ func InitAlpineData() *AlpineData {
 			HostName: "alpine",
 			InterfaceOpts: `auto lo
 iface lo inet loopback
-			
+
 auto eth0
 iface eth0 inet dhcp
 	hostname alpine

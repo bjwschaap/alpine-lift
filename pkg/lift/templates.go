@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	answerFileTemplate = `	KEYMAPOPTS="{{ .Keymap }}"
+	answerFileTemplate = `KEYMAPOPTS="{{ .Keymap }}"
 	{{ $h := split .Network.HostName "." -}}
 	HOSTNAMEOPTS="-n {{ index $h 0 }}"
 	INTERFACESOPTS="{{ .Network.InterfaceOpts }}"
@@ -21,8 +21,8 @@ const (
 	NTPOPTS="-c busybox"
 	DISKOPTS={{- if .ScratchDisk -}}"-q -m data {{ .ScratchDisk -}}"{{- else -}}"none"{{- end }}
 	LBUOPTS="none"
-	APKCACHEOPTS="/var/cache/apk"
-	`
+	APKCACHEOPTS="none"
+`
 
 	drpcliServiceTemplate = `#!/sbin/openrc-run
   
@@ -71,8 +71,7 @@ const (
 		killall -3 $name
 		rm -f $runfile
 		eend 0
-	}	
-	`
+	}`
 
 	repositoriesTemplate = "{{ range . }}{{ . }}\n{{ end }}"
 )
