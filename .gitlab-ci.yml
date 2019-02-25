@@ -1,5 +1,5 @@
 # This file is a template, and might need editing before it works on your project.
-image: golang:latest
+image: golang:1.11.4-alpine
 
 variables:
   # Please edit to your GitLab project
@@ -15,22 +15,22 @@ before_script:
   - mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
   - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
+  - apk add --no-cache git make
 
 stages:
-    - test
-    - build
+  - check
+  - build
 
-format:
-    stage: test
-    script:
-      - go fmt $(go list ./... | grep -v /vendor/)
-      - go vet $(go list ./... | grep -v /vendor/)
-      - go test -race $(go list ./... | grep -v /vendor/)
+check:
+  stage: check
+  script:
+    - go get -u golang.org/x/lint/golint
+    - make check
 
-compile:
+build:
     stage: build
     script:
-      - go build -race -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/mybinary
+      - make DOCKERRUN="" GITTAG=$CI_COMMIT_SHORT_SHA all
     artifacts:
       paths:
-        - lift
+        - bin/lift
