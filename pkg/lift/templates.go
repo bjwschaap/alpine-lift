@@ -18,7 +18,7 @@ const (
 	PROXYOPTS="{{ .Network.Proxy }}"
 	APKREPOSOPTS="-1"
 	SSHDOPTS="-c openssh"
-	NTPOPTS="-c busybox"
+	NTPOPTS="-c none"
 	DISKOPTS={{- if .ScratchDisk -}}"-q -m data {{ .ScratchDisk -}}"{{- else -}}"none"{{- end }}
 	LBUOPTS="none"
 	APKCACHEOPTS="none"
