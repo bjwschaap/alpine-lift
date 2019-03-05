@@ -24,6 +24,7 @@ stages:
 
 check:
   stage: check
+  allow_failure: true
   script:
     - go get -u golang.org/x/lint/golint
     - make check
