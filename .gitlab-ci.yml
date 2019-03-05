@@ -15,6 +15,7 @@ before_script:
   - mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
   - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
+  - sed -i 's/dl-cdn.alpinelinux.org/10.32.2.20/g' /etc/apk/repositories
   - apk add --no-cache git make
 
 stages:
