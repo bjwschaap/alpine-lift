@@ -21,6 +21,7 @@ before_script:
 stages:
   - check
   - build
+  - publish
 
 check:
   stage: check
@@ -36,3 +37,9 @@ build:
     artifacts:
       paths:
         - bin/lift
+
+publish:
+  stage: publish
+  script:
+      - apk add --no-cache curl
+      - curl --fail --user "${NEXUS_CREDENTIALS}" --upload-file bin/lift http://nexus.proatnedap.org/repository/gitlab-alpine-lift/${CI_COMMIT_SHORT_SHA}/lift
