@@ -34,6 +34,11 @@ func (l *Lift) Start() error {
 		silent = true
 	}
 
+	// If alpine-lift-debug-log kernel boot param is set, enable debug logging/output
+	if s, err := getKernelBootParam("alpine-lift-debug-log"); err == nil && s != "" {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	log.Info("Lift starting...")
 	// If url not provided, read it from the kernel boot parameters
 	if l.DataURL == "" {
