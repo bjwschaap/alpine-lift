@@ -4,6 +4,7 @@ image: golang:1.11.4-alpine
 variables:
   # Please edit to your GitLab project
   REPO_NAME: github.com/bjwschaap/lift
+  GO111MODULES: on
 
 # The problem is that to be able to use go get, one needs to put
 # the repository in the $GOPATH. So for example if your gitlab domain
