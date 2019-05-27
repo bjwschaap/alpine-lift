@@ -5,20 +5,21 @@ import (
 )
 
 type AlpineData struct {
-	RootPasswd  string          `yaml:"password"`
-	MOTD        string          `yaml:"motd"`
-	Network     NetworkSettings `yaml:"network"`
-	Packages    PackagesConfig  `yaml:"packages"`
-	DRP         DRProvision     `yaml:"dr_provision"`
-	SSHDConfig  SSHD            `yaml:"sshd"`
-	Groups      MultiString     `yaml:"groups"`
-	Users       []User          `yaml:"users"`
-	RunCMD      []MultiString   `yaml:"runcmd"`
-	WriteFiles  []WriteFile     `yaml:"write_files"`
-	TimeZone    string          `yaml:"timezone"`
-	Keymap      string          `yaml:"keymap"`
-	UnLift      bool            `yaml:"unlift"`
-	ScratchDisk string          `yaml:"scratch_disk"`
+	RootPasswd  string            `yaml:"password"`
+	MOTD        string            `yaml:"motd"`
+	Network     *NetworkSettings  `yaml:"network"`
+	Packages    *PackagesConfig   `yaml:"packages"`
+	DRP         *DRProvision      `yaml:"dr_provision"`
+	SSHDConfig  *SSHD             `yaml:"sshd"`
+	Groups      MultiString       `yaml:"groups"`
+	Users       []User            `yaml:"users"`
+	RunCMD      []MultiString     `yaml:"runcmd"`
+	WriteFiles  []WriteFile       `yaml:"write_files"`
+	TimeZone    string            `yaml:"timezone"`
+	Keymap      string            `yaml:"keymap"`
+	UnLift      bool              `yaml:"unlift"`
+	ScratchDisk string            `yaml:"scratch_disk"`
+	MTA         *MTAConfiguration `yaml:"mta"`
 }
 
 type User struct {
@@ -52,16 +53,34 @@ type DRProvision struct {
 }
 
 type NetworkSettings struct {
-	HostName      string              `yaml:"hostname"`
-	InterfaceOpts string              `yaml:"interfaces"`
-	ResolvConf    ResolvConfiguration `yaml:"resolv_conf"`
-	Proxy         string              `yaml:"proxy"`
+	HostName      string               `yaml:"hostname"`
+	InterfaceOpts string               `yaml:"interfaces"`
+	ResolvConf    *ResolvConfiguration `yaml:"resolv_conf"`
+	Proxy         string               `yaml:"proxy"`
+	NTP           *NTPConfiguration    `yaml:"ntp"`
 }
 
 type ResolvConfiguration struct {
 	NameServers   MultiString `yaml:"nameservers"`
 	SearchDomains MultiString `yaml:"search_domains"`
 	Domain        string      `yaml:"domain"`
+}
+
+type NTPConfiguration struct {
+	Pools   MultiString `yaml:"pools"`
+	Servers MultiString `yaml:"servers"`
+}
+
+type MTAConfiguration struct {
+	Root             string `yaml:"root"`
+	Server           string `yaml:"server"`
+	UseTLS           bool   `yaml:"use_tls"`
+	UseSTARTTLS      bool   `yaml:"use_starttls"`
+	User             string `yaml:"user"`
+	Password         string `yaml:"password"`
+	AuthMethod       string `yaml:"authmethod"`
+	RewriteDomain    string `yaml:"rewrite_domain"`
+	FromLineOverride bool   `yaml:"fromline_override"`
 }
 
 type PackagesConfig struct {
@@ -105,38 +124,26 @@ func (ms *MultiString) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 var silent bool
 
-// Initialize alpine-data with sane defaults
+// InitAlpineData initializes alpine-data with sane defaults
 func InitAlpineData() *AlpineData {
 	return &AlpineData{
 		UnLift:   true,
 		TimeZone: "UTC",
 		Keymap:   "us us",
-		Network: NetworkSettings{
+		Network: &NetworkSettings{
 			HostName: "alpine",
-			InterfaceOpts: `auto lo
-iface lo inet loopback
-
-auto eth0
-iface eth0 inet dhcp
-	hostname alpine
-`,
-			Proxy: "none",
-			ResolvConf: ResolvConfiguration{
-				NameServers: []string{"8.8.8.8"},
-				Domain:      "example.com",
-			},
 		},
-		SSHDConfig: SSHD{
+		SSHDConfig: &SSHD{
 			Port:                   22,
 			ListenAddress:          "0.0.0.0",
 			PermitRootLogin:        true,
 			PermitEmptyPasswords:   false,
 			PasswordAuthentication: false,
 		},
-		DRP: DRProvision{
+		DRP: &DRProvision{
 			InstallRunner: true,
 		},
-		Packages: PackagesConfig{
+		Packages: &PackagesConfig{
 			Repositories: []string{
 				"http://dl-cdn.alpinelinux.org/alpine/v3.8/main",
 				"http://dl-cdn.alpinelinux.org/alpine/v3.8/community",

@@ -55,8 +55,13 @@ func (l *Lift) Start() error {
 		return err
 	}
 
-	log.Info("Executing alpine-setup")
-	if err = l.alpineSetup(); err != nil {
+	log.Info("Set root password")
+	if err = l.rootPasswdSetup(); err != nil {
+		return err
+	}
+
+	log.Info("Executing setup-disk")
+	if err = l.diskSetup(); err != nil {
 		return err
 	}
 
@@ -65,12 +70,27 @@ func (l *Lift) Start() error {
 		return err
 	}
 
+	log.Info("Setup Network Interfaces")
+	if err = l.networkSetup(); err != nil {
+		return err
+	}
+
+	log.Info("Setup DNS")
+	if err = l.dnsSetup(); err != nil {
+		return err
+	}
+
+	log.Info("Setup Up Network Proxy")
+	if err = l.proxySetup(); err != nil {
+		return err
+	}
+
 	log.Info("Setup APK and Packages")
 	if err = l.setupAPK(); err != nil {
 		return err
 	}
 
-	log.Info("Setting SSHD configuration")
+	log.Info("Setup SSHD configuration")
 	if err = l.sshdSetup(); err != nil {
 		return err
 	}
@@ -92,11 +112,21 @@ func (l *Lift) Start() error {
 		}
 	}
 
+	log.Info("Setup NTP")
+	if err = l.ntpSetup(); err != nil {
+		return err
+	}
+
 	if l.Data.DRP.InstallRunner {
 		log.Info("Installing dr-provision runner")
 		if err = l.drpSetup(); err != nil {
 			return err
 		}
+	}
+
+	log.Info("Setup MTA")
+	if err = l.mtaSetup(); err != nil {
+		return err
 	}
 
 	log.Info("Writing files")

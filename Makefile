@@ -16,9 +16,12 @@ endif
 SRC = $(shell pwd)
 GOFILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-all: clean build
+all: clean upxbuild
 
 build:
+	${DOCKERRUN} ash -c "apk add --no-cache git upx libc-dev gcc && GO111MODULE=on go mod download && ${GOBUILD} -o bin/${BINNAME} github.com/bjwschaap/lift/cmd/lift"
+
+upxbuild:
 	${DOCKERRUN} ash -c "apk add --no-cache git upx libc-dev gcc && GO111MODULE=on go mod download && ${GOBUILD} -o bin/${BINNAME} github.com/bjwschaap/lift/cmd/lift && ${UPX}"
 
 localbuild:
@@ -39,4 +42,4 @@ clean:
 	rm -f bin/${BINNAME}
 	rm -f bin/${BINNAME}.*
 
-.PHONY: all build localbuild upx clean
+.PHONY: all build upxbuild localbuild upx clean

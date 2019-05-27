@@ -1,15 +1,13 @@
 module github.com/bjwschaap/lift
 
 require (
-	github.com/google/pprof v0.0.0-20190109223431-e84dfd68c163 // indirect
-	github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6 // indirect
+	github.com/BurntSushi/toml v0.3.1 // indirect
+	github.com/docker/docker v1.13.1
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.0.0
-	github.com/simplereach/timeutils v1.2.0
+	github.com/mitchellh/go-ps v0.0.0-20170309133038-4fdf99ab2936
 	github.com/sirupsen/logrus v1.3.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.3.1
-	golang.org/x/arch v0.0.0-20181203225421-5a4828bb7045 // indirect
-	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
 	gopkg.in/yaml.v2 v2.2.2
 )
