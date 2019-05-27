@@ -33,6 +33,8 @@ const (
 	
 	depend() {
 			need net
+			after cgroups
+			before sshd docker
 	}
 	
 	start_pre() {
@@ -74,19 +76,49 @@ const (
 	}`
 
 	repositoriesTemplate = "{{ range . }}{{ . }}\n{{ end }}"
+
+	chronyTemplate = `{{ if .Network.NTP.Pools }}
+{{ range .Network.NTP.Pools }}
+pool {{.}} iburst maxsources 3
+{{ end }}
+initstepslew 10 {{ index .Network.NTP.Pools 0 }}
+{{ end }}
+{{ if .Network.NTP.Servers }}
+{{ range .Network.NTP.Servers }}
+server {{.}} iburst maxsources 3
+{{ end }}
+initstepslew 10 {{ index .Network.NTP.Servers 0 }}
+{{ end }}
+driftfile /var/lib/chrony/chrony.drift
+rtcsync`
+
+	ssmtpTemplate = `hostname={{ .Network.HostName }}
+{{ if .MTA.Root }}root={{ .MTA.Root }}{{ end }}
+{{ if .MTA.Server }}mailhub={{ .MTA.Server }}{{ end }}
+{{ if .MTA.UseTLS }}UseTLS=Yes{{ end }}
+{{ if .MTA.UseSTARTTLS }}UseSTARTTLS=Yes{{ end }}
+{{ if .MTA.User }}AuthUser={{ .MTA.User }}{{ end }}
+{{ if .MTA.Password }}AuthPass={{ .MTA.Password }}{{ end }}
+{{ if .MTA.AuthMethod }}AuthMethod={{ upper .MTA.AuthMethod }}{{ end }}
+{{ if .MTA.RewriteDomain }}rewriteDomain={{ .MTA.RewriteDomain }}{{ end }}
+{{ if .MTA.FromLineOverride }}FromLineOverride=Yes{{ end }}
+`
 )
 
 var (
-	tplFuncMap                       = make(template.FuncMap)
-	answerFile, drpcliInit, repoFile *template.Template
+	tplFuncMap                                              = make(template.FuncMap)
+	answerFile, drpcliInit, repoFile, chronyConf, ssmtpConf *template.Template
 )
 
 func init() {
 	// Initialise parser functions
 	tplFuncMap["split"] = Split
+	tplFuncMap["upper"] = Upper
 	answerFile = template.Must(template.New("answerfile").Funcs(tplFuncMap).Parse(answerFileTemplate))
 	drpcliInit = template.Must(template.New("drpcli").Funcs(tplFuncMap).Parse(drpcliServiceTemplate))
 	repoFile = template.Must(template.New("repositories").Funcs(tplFuncMap).Parse(repositoriesTemplate))
+	chronyConf = template.Must(template.New("chrony").Funcs(tplFuncMap).Parse(chronyTemplate))
+	ssmtpConf = template.Must(template.New("ssmtp").Funcs(tplFuncMap).Parse(ssmtpTemplate))
 }
 
 // This function takes a template and data struct, executes (parses) the template
@@ -118,4 +150,9 @@ func generateFileFromTemplate(t template.Template, data interface{}) (string, er
 // Split is a parser function that can be used from inside the template
 func Split(s string, d string) []string {
 	return strings.Split(s, d)
+}
+
+// Upper is a parser function that can be used from inside the template
+func Upper(s string) string {
+	return strings.ToUpper(s)
 }

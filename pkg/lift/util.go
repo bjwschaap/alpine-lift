@@ -17,6 +17,7 @@ const (
 	RESTART = "restart"
 	STOP    = "stop"
 	RELOAD  = "reload"
+	ZAP     = "zap"
 )
 
 // rewrites a config file with values from alpine-data
