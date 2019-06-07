@@ -33,7 +33,7 @@ const (
 	
 	depend() {
 			need net
-			after cgroups
+			use cgroups
 			before sshd docker
 	}
 	
