@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -202,24 +203,33 @@ func (l *Lift) proxySetup() error {
 
 // sets root password if needed
 func (l *Lift) rootPasswdSetup() error {
-	if l.Data.RootPasswd != "" {
-		chpasswdCmd := exec.Command("chpasswd")
-		reader, writer := io.Pipe()
-		s := []byte(fmt.Sprintf("root:%s\n", l.Data.RootPasswd))
-
-		chpasswdCmd.Stdout = os.Stdout
-		chpasswdCmd.Stderr = os.Stderr
-		chpasswdCmd.Stdin = reader
-		chpasswdCmd.Start()
-		writer.Write(s)
-		writer.Close()
-		err := chpasswdCmd.Wait()
-		reader.Close()
-		if err != nil {
-			return err
+	// Always set a password, randomized if empty..
+	if l.Data.RootPasswd == "" {
+		rand.Seed(time.Now().UnixNano())
+		letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&^%$#-_")
+		b := make([]rune, 30)
+		for i := range b {
+			b[i] = letterRunes[rand.Intn(len(letterRunes))]
 		}
+		l.Data.RootPasswd = string(b)
+	}
+	chpasswdCmd := exec.Command("chpasswd")
+	reader, writer := io.Pipe()
+	s := []byte(fmt.Sprintf("root:%s\n", l.Data.RootPasswd))
+
+	chpasswdCmd.Stdout = os.Stdout
+	chpasswdCmd.Stderr = os.Stderr
+	chpasswdCmd.Stdin = reader
+	chpasswdCmd.Start()
+	writer.Write(s)
+	writer.Close()
+	err := chpasswdCmd.Wait()
+	reader.Close()
+	if err != nil {
+		return err
 	}
 	return nil
+
 }
 
 // parses sshd_config, writes authorized_keys file and restarts sshd service
