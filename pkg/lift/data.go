@@ -4,6 +4,7 @@ import (
 	"strconv"
 )
 
+// AlpineData is the main alpine-data yaml specification
 type AlpineData struct {
 	RootPasswd  string            `yaml:"password"`
 	MOTD        string            `yaml:"motd"`
@@ -19,9 +20,11 @@ type AlpineData struct {
 	Keymap      string            `yaml:"keymap"`
 	UnLift      bool              `yaml:"unlift"`
 	ScratchDisk string            `yaml:"scratch_disk"`
+	Disks       []Disk            `yaml:"disks"`
 	MTA         *MTAConfiguration `yaml:"mta"`
 }
 
+// User specifies a specific OS user
 type User struct {
 	Name              string      `yaml:"name"`
 	Description       string      `yaml:"gecos"`
@@ -35,6 +38,7 @@ type User struct {
 	Password          string      `yaml:"passwd"`
 }
 
+// SSHD specifies the `sshd` entry
 type SSHD struct {
 	Port                   int      `yaml:"port"`
 	ListenAddress          string   `yaml:"listen_address"`
@@ -44,6 +48,7 @@ type SSHD struct {
 	PasswordAuthentication bool     `yaml:"password_authentication"`
 }
 
+// DRProvision is used for installing and configuring drpcli
 type DRProvision struct {
 	InstallRunner bool   `yaml:"install_runner"`
 	AssetsURL     string `yaml:"assets_url"`
@@ -52,6 +57,7 @@ type DRProvision struct {
 	UUID          string `yaml:"uuid"`
 }
 
+// NetworkSettings contains all network settings lift should apply
 type NetworkSettings struct {
 	HostName      string               `yaml:"hostname"`
 	InterfaceOpts string               `yaml:"interfaces"`
@@ -60,17 +66,21 @@ type NetworkSettings struct {
 	NTP           *NTPConfiguration    `yaml:"ntp"`
 }
 
+// ResolvConfiguration contains the DNS spec
 type ResolvConfiguration struct {
 	NameServers   MultiString `yaml:"nameservers"`
 	SearchDomains MultiString `yaml:"search_domains"`
 	Domain        string      `yaml:"domain"`
 }
 
+// NTPConfiguration is used for configuring chronyd
 type NTPConfiguration struct {
 	Pools   MultiString `yaml:"pools"`
 	Servers MultiString `yaml:"servers"`
 }
 
+// MTAConfiguration contains all information for setting up a
+// mail transfer agent (mail forwarding)
 type MTAConfiguration struct {
 	Root             string `yaml:"root"`
 	Server           string `yaml:"server"`
@@ -83,6 +93,7 @@ type MTAConfiguration struct {
 	FromLineOverride bool   `yaml:"fromline_override"`
 }
 
+// PackagesConfig contains specification for the `packages:` block.
 type PackagesConfig struct {
 	Repositories MultiString `yaml:"repositories"`
 	Update       bool        `yaml:"update"`
@@ -91,6 +102,8 @@ type PackagesConfig struct {
 	Uninstall    MultiString `yaml:"uninstall"`
 }
 
+// WriteFile allows for specifying files and their content
+// that should be created on first boot.
 type WriteFile struct {
 	Encoding    string `yaml:"encoding"`
 	Content     string `yaml:"content"`
@@ -100,10 +113,18 @@ type WriteFile struct {
 	Permissions string `yaml:"permissions"`
 }
 
-// type alias
+// Disk specifies a disk that should be formatted and mounted
+// (without partitioning, LUKS encrypted).
+type Disk struct {
+	Device         string `yaml:"device"`
+	FileSystemType string `yaml:"filesystem"`
+	MountPoint     string `yaml:"mountpoint"`
+}
+
+// MultiString is a type alias, needed for unmarshalling
 type MultiString []string
 
-// custom unmarshalling function for parsing yaml values that
+// UnmarshalYAML is a custom unmarshalling function for parsing yaml values that
 // contains one or more string (either string or array of strings)
 // but always returning []string (aliased with MultiString)
 func (ms *MultiString) UnmarshalYAML(unmarshal func(interface{}) error) error {
