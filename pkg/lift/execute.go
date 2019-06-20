@@ -24,6 +24,18 @@ const (
 	ssmtpConfFile  = "/etc/ssmtp/ssmtp.conf"
 )
 
+var (
+	fsPackage = map[string]string{
+		"xfs":   "xfsprogs",
+		"btrfs": "btrfs-progs",
+		"ext2":  "e2fsprogs",
+		"ext3":  "e2fsprogs",
+		"ext4":  "e2fsprogs",
+		"jfs":   "jfsutils",
+		"ntfs":  "ntfs-3g-progs",
+	}
+)
+
 // executes the `hostname` command, if hostname was provided in alpine-data
 func (l *Lift) setHostname() error {
 	if l.Data.Network.HostName != "" {
@@ -83,7 +95,7 @@ func (l *Lift) mtaSetup() error {
 // It tries to detect if Docker is running, since Docker will
 // mount /var/lib/docker, which prevents the scratch disk
 // from being mounted correctly.
-func (l *Lift) diskSetup() error {
+func (l *Lift) scratchDiskSetup() error {
 	if l.Data.ScratchDisk == "" {
 		log.Debug("No Scratch Disk defined")
 		return nil
@@ -156,6 +168,71 @@ func (l *Lift) diskSetup() error {
 		_ = exec.Command("swapon", "-a").Run()
 	}
 
+	return nil
+}
+
+// Encrypt, Format and mount other disks if configured
+func (l *Lift) diskSetup() error {
+	if l.Data.Disks == nil {
+		log.Debug("No additional disks")
+		return nil
+	}
+	for i, disk := range l.Data.Disks {
+		log.Debug("Installing cryptsetup package")
+		_ = exec.Command("apk", "add", "--no-cache", "cryptsetup").Run()
+		log.Debug("Generating random key")
+		rand.Seed(time.Now().UnixNano())
+		letterRunes := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+		b := make([]rune, 30)
+		for i := range b {
+			b[i] = letterRunes[rand.Intn(len(letterRunes))]
+		}
+		luksPass := string(b)
+		log.Debugf("Encrypting %s (LUKS)", disk.Device)
+		cmdStr := fmt.Sprintf("echo -n '%s' | cryptsetup luksFormat %s -", luksPass, disk.Device)
+		encryptCmd := exec.Command("ash", "-c", cmdStr)
+		encryptCmd.Stdout = os.Stdout
+		if err := encryptCmd.Run(); err != nil {
+			return err
+		}
+
+		if log.GetLevel() == log.DebugLevel {
+			dumpCmd := exec.Command("cryptsetup", "luksDump", disk.Device)
+			dumpCmd.Stdout = os.Stdout
+			_ = dumpCmd.Run()
+		}
+
+		mapper := fmt.Sprintf("crypt%d", i)
+		log.Debugf("Opening %s as %s", disk.Device, mapper)
+		cmdStr = fmt.Sprintf("echo -n '%s' | cryptsetup luksOpen %s %s -d -", luksPass, disk.Device, mapper)
+		openCmd := exec.Command("ash", "-c", cmdStr)
+		openCmd.Stdout = os.Stdout
+		if err := openCmd.Run(); err != nil {
+			return err
+		}
+
+		// Check filesystem support and kernel modules. Ignore exit codes..
+		log.Debugf("Checking filesystem prerequisites")
+		_ = exec.Command("apk", "add", "--no-cache", fsPackage[strings.ToLower(disk.FileSystemType)]).Run()
+		_ = exec.Command("modprobe", strings.ToLower(disk.FileSystemType)).Run()
+
+		mapdevice := fmt.Sprintf("/dev/mapper/%s", mapper)
+		log.Debugf("Creating %s filesystem on %s", disk.FileSystemType, mapdevice)
+		cmd := exec.Command(fmt.Sprintf("mkfs.%s", strings.ToLower(disk.FileSystemType)), mapdevice)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+		log.Debugf("Creating mountpoint %s", disk.MountPoint)
+		cmd = exec.Command("mkdir", "-p", disk.MountPoint)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+		log.Debugf("Mounting %s on %s as %s", mapdevice, disk.MountPoint, disk.FileSystemType)
+		cmd = exec.Command("mount", "-t", strings.ToLower(disk.FileSystemType), mapdevice, disk.MountPoint)
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

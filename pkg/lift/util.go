@@ -12,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Constants for service states
 const (
 	START   = "start"
 	RESTART = "restart"

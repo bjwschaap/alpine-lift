@@ -66,6 +66,11 @@ func (l *Lift) Start() error {
 	}
 
 	log.Info("Executing setup-disk")
+	if err = l.scratchDiskSetup(); err != nil {
+		return err
+	}
+
+	log.Info("Add additional disks")
 	if err = l.diskSetup(); err != nil {
 		return err
 	}
