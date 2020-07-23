@@ -36,7 +36,7 @@ fmt:
 check:
 	@test -z $(shell gofmt -l cmd/lift/main.go | tee /dev/stderr) || echo "[WARN] Fix formatting issues with 'make fmt'"
 	@for d in $$(go list ./... | grep -v /vendor/); do golint -set_exit_status $${d}; done
-	@go tool vet ${GOFILES}
+	@go vet ${GOFILES}
 
 clean:
 	rm -f bin/${BINNAME}
