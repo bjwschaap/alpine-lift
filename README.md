@@ -1,5 +1,5 @@
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=bjwschaap/alpine-lift)](https://dependabot.com)
-[![Go Report Card]](https://goreportcard.com/badge/github.com/bjwschaap/alpine-lift)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bjwschaap/alpine-lift)](https://goreportcard.com/report/github.com/bjwschaap/alpine-lift)
 
 # Lift
 
