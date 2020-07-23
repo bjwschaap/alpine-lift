@@ -11,5 +11,5 @@ require (
 	github.com/spf13/viper v1.3.1
 	golang.org/x/arch v0.0.0-20181203225421-5a4828bb7045 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v2 v2.3.0
 )
