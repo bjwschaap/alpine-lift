@@ -10,7 +10,7 @@ require (
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/afero v1.3.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
-	github.com/spf13/cobra v1.1.0
+	github.com/spf13/cobra v1.1.1
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.7.1
 	golang.org/x/sys v0.0.0-20200722175500-76b94024e4b6 // indirect
