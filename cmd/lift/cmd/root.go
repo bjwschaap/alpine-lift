@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bjwschaap/lift/pkg/lift"
+	"github.com/bjwschaap/alpine-lift/pkg/lift"
 	homedir "github.com/mitchellh/go-homedir"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
