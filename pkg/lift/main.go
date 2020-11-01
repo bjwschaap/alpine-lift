@@ -75,24 +75,31 @@ func (l *Lift) Start() error {
 		return err
 	}
 
-	log.Info("Setting Hostname")
-	if err = l.setHostname(); err != nil {
-		return err
-	}
+	if l.Data.Network != nil {
+		log.Info("Setting Hostname")
+		if err = l.setHostname(); err != nil {
+			return err
+		}
 
-	log.Info("Setup Network Interfaces")
-	if err = l.networkSetup(); err != nil {
-		return err
-	}
+		log.Info("Setup Network Interfaces")
+		if err = l.networkSetup(); err != nil {
+			return err
+		}
 
-	log.Info("Setup DNS")
-	if err = l.dnsSetup(); err != nil {
-		return err
-	}
+		log.Info("Setup DNS")
+		if err = l.dnsSetup(); err != nil {
+			return err
+		}
 
-	log.Info("Setup Up Network Proxy")
-	if err = l.proxySetup(); err != nil {
-		return err
+		log.Info("Setup Up Network Proxy")
+		if err = l.proxySetup(); err != nil {
+			return err
+		}
+
+		log.Info("Setup NTP")
+		if err = l.ntpSetup(); err != nil {
+			return err
+		}
 	}
 
 	log.Info("Setup APK and Packages")
@@ -122,12 +129,7 @@ func (l *Lift) Start() error {
 		}
 	}
 
-	log.Info("Setup NTP")
-	if err = l.ntpSetup(); err != nil {
-		return err
-	}
-
-	if l.Data.DRP.InstallRunner {
+	if l.Data.DRP != nil && l.Data.DRP.InstallRunner {
 		log.Info("Installing dr-provision runner")
 		if err = l.drpSetup(); err != nil {
 			return err
