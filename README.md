@@ -17,6 +17,15 @@ YAML file equivalent to cloud-init's user-data. Lift will download the
 alpine-data and perform the initial OS configuration. Lift will run only once,
 on first boot of the system, by default.
 
+## Building
+
+To make a statically linked, upx-compressed build suitable for any
+recent Alpine version, run:
+
+```
+make
+```
+
 ## Usage
 
 In order for `lift` to bootstrap your Alpine node:
