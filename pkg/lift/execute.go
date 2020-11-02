@@ -311,6 +311,9 @@ func (l *Lift) rootPasswdSetup() error {
 
 // parses sshd_config, writes authorized_keys file and restarts sshd service
 func (l *Lift) sshdSetup() error {
+	if l.Data.SSHDConfig == nil {
+		return nil
+	}
 	if err := parseConfigFile("/etc/ssh/sshd_config", " ", l.getSSHDKVMap()); err != nil {
 		return err
 	}
@@ -430,6 +433,9 @@ func (l *Lift) drpSetup() error {
 }
 
 func (l *Lift) setupAPK() error {
+	if l.Data.Packages == nil {
+		return nil
+	}
 	rfile, err := generateFileFromTemplate(*repoFile, l.Data.Packages.Repositories)
 	if err != nil {
 		return err
