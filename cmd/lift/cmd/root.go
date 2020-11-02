@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/bjwschaap/alpine-lift/pkg/lift"
 	homedir "github.com/mitchellh/go-homedir"
@@ -37,7 +38,20 @@ var (
 				log.SetFormatter(&log.JSONFormatter{})
 			}
 
-			lift, err := lift.New(viper.GetString("alpine-data-url"))
+			headers := make(map[string][]string)
+			for _, h := range viper.GetStringSlice("request-headers") {
+				words := strings.SplitN(h, ":", 2)
+				key := strings.TrimSpace(words[0])
+				value := strings.TrimSpace(words[1])
+				if key == "" || value == "" {
+					log.Errorf("Invalid request header: %s", h)
+					log.Error("Lift aborted")
+					os.Exit(1)
+				}
+				headers[key] = append(headers[key], value)
+			}
+
+			lift, err := lift.New(viper.GetString("alpine-data-url"), headers)
 			if err != nil {
 				log.Error(err)
 				log.Error("Lift aborted")
@@ -61,6 +75,7 @@ var (
 
 	cfgFile string
 	dataURL string
+	headers []string
 	debug   bool
 	json    bool
 	nocolor bool
@@ -79,8 +94,10 @@ func init() {
 	RootCmd.PersistentFlags().BoolVar(&nocolor, "no-color", false, "disable colors in logging")
 	RootCmd.PersistentFlags().BoolVarP(&json, "json", "j", false, "Log output in JSON format")
 	RootCmd.PersistentFlags().StringVarP(&dataURL, "alpine-data-url", "s", "", "URL to download alpine-data")
+	RootCmd.PersistentFlags().StringArrayVarP(&headers, "request-header", "H", nil, "HTTP header(s) to include in request, akin to curl's -H")
 	_ = viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
 	_ = viper.BindPFlag("alpine-data-url", RootCmd.PersistentFlags().Lookup("alpine-data-url"))
+	_ = viper.BindPFlag("request-header", RootCmd.PersistentFlags().Lookup("request-header"))
 	_ = viper.BindPFlag("json", RootCmd.PersistentFlags().Lookup("json"))
 	_ = viper.BindPFlag("no-color", RootCmd.PersistentFlags().Lookup("no-color"))
 }

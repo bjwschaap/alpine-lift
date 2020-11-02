@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -14,15 +15,17 @@ import (
 
 // Lift contains all configuration
 type Lift struct {
-	DataURL string
-	Data    *AlpineData
+	DataURL        string
+	RequestHeaders http.Header
+	Data           *AlpineData
 }
 
 // New returns a new Lift instance with initial configuration
-func New(dataURL string) (*Lift, error) {
+func New(dataURL string, requestHeaders http.Header) (*Lift, error) {
 	return &Lift{
-		DataURL: dataURL,
-		Data:    InitAlpineData(),
+		DataURL:        dataURL,
+		RequestHeaders: requestHeaders,
+		Data:           InitAlpineData(),
 	}, nil
 }
 
@@ -51,7 +54,7 @@ func (l *Lift) Start() error {
 		}
 	}
 	log.WithField("url", l.DataURL).Info("downloading alpine-data file")
-	data, err := downloadFile(l.DataURL)
+	data, err := downloadFile(l.DataURL, l.RequestHeaders)
 	if err != nil {
 		return err
 	}

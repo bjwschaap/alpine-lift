@@ -6,8 +6,13 @@ import (
 )
 
 // DownloadFile returns a file from http(s)
-func downloadFile(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+func downloadFile(url string, headers http.Header) ([]byte, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = headers
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

@@ -389,7 +389,7 @@ func (l *Lift) drpSetup() error {
 	if _, err := os.Stat(drpcliBin); os.IsNotExist(err) {
 		url := fmt.Sprintf("%s/drpcli.amd64.linux", l.Data.DRP.AssetsURL)
 		log.WithField("url", url).Debug("Downloading drpcli")
-		drpcli, err := downloadFile(url)
+		drpcli, err := downloadFile(url, nil)
 		if err != nil {
 			return err
 		}
@@ -516,7 +516,7 @@ func (l *Lift) createFiles() error {
 			data = []byte(wf.Content)
 
 		} else if wf.ContentURL != "" {
-			if data, err = downloadFile(wf.ContentURL); err != nil {
+			if data, err = downloadFile(wf.ContentURL, nil); err != nil {
 				return err
 			}
 		}
