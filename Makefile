@@ -1,6 +1,6 @@
 PKG = github.com/bjwschaap/alpine-lift
 BINNAME = lift
-VERSION = v0.0.1
+VERSION = v0.0.2
 GOOS = -e GOOS=linux
 GOARCH = -e GOARCH=amd64
 CGO = -e CGO_ENABLED=1
