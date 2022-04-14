@@ -9,6 +9,6 @@ require (
 	github.com/moby/sys/mount v0.3.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.4.0
-	github.com/spf13/viper v1.10.1
+	github.com/spf13/viper v1.11.0
 	gopkg.in/yaml.v2 v2.4.0
 )
