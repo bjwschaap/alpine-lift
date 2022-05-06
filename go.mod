@@ -3,7 +3,7 @@ module github.com/bjwschaap/alpine-lift
 go 1.15
 
 require (
-	github.com/docker/docker v20.10.14+incompatible
+	github.com/docker/docker v20.10.15+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/moby/sys/mount v0.3.0 // indirect
