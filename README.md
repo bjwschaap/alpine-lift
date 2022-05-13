@@ -1,6 +1,7 @@
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=bjwschaap/alpine-lift)](https://dependabot.com)
 [![Go Report Card](https://goreportcard.com/badge/github.com/bjwschaap/alpine-lift)](https://goreportcard.com/report/github.com/bjwschaap/alpine-lift)
 [![Github Action](https://github.com/bjwschaap/alpine-lift/workflows/Go/badge.svg)](https://github.com/bjwschaap/alpine-lift/actions?query=workflow%3AGo)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbjwschaap%2Falpine-lift.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbjwschaap%2Falpine-lift?ref=badge_shield)
 
 # Lift
 
@@ -215,6 +216,9 @@ write_files:
     owner: nobody:nobody  # chown format
     permissions: 0644
 ```
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbjwschaap%2Falpine-lift.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbjwschaap%2Falpine-lift?ref=badge_large)
 
 ### runcmd
 A list of strings with shell commands to be executed just before `lift` exits. The commands will
