@@ -4,7 +4,7 @@ VERSION = v0.0.2
 GOOS = -e GOOS=linux
 GOARCH = -e GOARCH=amd64
 CGO = -e CGO_ENABLED=1
-BUILDIMAGE = golang:1.11.4-alpine
+BUILDIMAGE = golang:1.18-alpine
 DOCKERRUN = docker run --rm -t -v ${SRC}:/go/src/${PKG} -w /go/src/${PKG} ${GOOS} ${GOARCH} ${CGO} ${BUILDIMAGE}
 GOBUILD = GO111MODULE=on go build -a -tags netgo -ldflags '-s -w -extldflags "-static" -X github.com/bjwschaap/alpine-lift/cmd/lift/cmd.gitTag=${GITTAG} -X github.com/bjwschaap/alpine-lift/cmd/lift/cmd.buildUser=${USER} -X github.com/bjwschaap/alpine-lift/cmd/lift/cmd.version=${VERSION} -X github.com/bjwschaap/alpine-lift/cmd/lift/cmd.buildDate=${BUILDDATE}'
 UPX = upx --brute bin/${BINNAME}

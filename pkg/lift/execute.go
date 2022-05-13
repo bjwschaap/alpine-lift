@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/docker/docker/pkg/mount"
 	"github.com/mitchellh/go-ps"
+	"github.com/moby/sys/mountinfo"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -125,13 +125,16 @@ func (l *Lift) scratchDiskSetup() error {
 		time.Sleep(2 * time.Second)
 	}
 
-	mnts, _ := mount.GetMounts()
-	for _, mnt := range mnts {
+	mnts, _ := mountinfo.GetMounts(func(mnt *mountinfo.Info) (skip, stop bool) {
 		if strings.Contains(mnt.Mountpoint, "/var") {
-			log.Infof("Unmounting %s", mnt.Mountpoint)
-			cmd := exec.Command("umount", mnt.Mountpoint)
-			_ = cmd.Run()
+			return false, false
 		}
+		return true, false
+	})
+	for _, mnt := range mnts {
+		log.Infof("Unmounting %s", mnt.Mountpoint)
+		cmd := exec.Command("umount", mnt.Mountpoint)
+		_ = cmd.Run()
 	}
 
 	log.WithField("disk", l.Data.ScratchDisk).Debug("Setup Scratch Disk")
