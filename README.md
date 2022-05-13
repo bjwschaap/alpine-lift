@@ -1,4 +1,3 @@
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=bjwschaap/alpine-lift)](https://dependabot.com)
 [![Go Report Card](https://goreportcard.com/badge/github.com/bjwschaap/alpine-lift)](https://goreportcard.com/report/github.com/bjwschaap/alpine-lift)
 [![Github Action](https://github.com/bjwschaap/alpine-lift/workflows/Go/badge.svg)](https://github.com/bjwschaap/alpine-lift/actions?query=workflow%3AGo)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbjwschaap%2Falpine-lift.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbjwschaap%2Falpine-lift?ref=badge_shield)
@@ -217,9 +216,6 @@ write_files:
     permissions: 0644
 ```
 
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbjwschaap%2Falpine-lift.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbjwschaap%2Falpine-lift?ref=badge_large)
-
 ### runcmd
 A list of strings with shell commands to be executed just before `lift` exits. The commands will
 be executed in the order they are specified. The commands are subshelled through `sh` so interpollation
@@ -237,6 +233,12 @@ runcmd:
 
 Since `runcmd` is the last block to execute, it's possible to combine it with `write_files` to e.g. add scripts
 and execute them. This allows for a high level of customization.
+
+## Licenses
+
+This source is released under MIT license.
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbjwschaap%2Falpine-lift.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbjwschaap%2Falpine-lift?ref=badge_large)
 
 ## Contributors
 
